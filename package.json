@@ -1,0 +1,14 @@
+{
+  "name": "breizhcamp-entrance",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "elasticsearch": "~2.1.4",
+    "fast-csv": "^0.2.4",
+    "express": "^4.1.1",
+    "body-parser": "^1.0.2",
+    "socket.io": "^0.9.16"
+  },
+  "license": "GPLv3"
+}

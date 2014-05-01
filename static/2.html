@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="entrance">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Entrance - 2nd screen</title>
+
+	<!-- Bootstrap -->
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/screen2.css" rel="stylesheet">
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="js/vendor/moment.min.js"></script>
+	<script src="js/vendor/angular.min.js"></script>
+	<script src="js/vendor/angular-locale_fr-fr.js"></script>
+	<script src="js/io_service.js"></script>
+	<script src="js/screen2_controller.js"></script>
+	<script src="js/directives.js"></script>
+
+</head>
+<body ng-controller="screen2">
+
+<div class="jumbotron" ng-show="list.length > 0">
+	<div class="container">
+		<div ng-repeat="person in list" ng-if="$index < 2" ng-class="{botborder: $even}">
+			<div class="pull-right"><span gravatar size="125" email-hash="{{person.mailmd5}}"></span></div>
+			<h1>{{person.nom}} {{person.prenom}}</h1>
+			<h1 style="margin-top: -45px" ng-show="person.societe"><small>{{person.societe}}</small></h1>
+
+			<h2 ng-class="{'text-primary': person.speaker, 'text-info': !person.speaker}">
+				{{person.type}}
+				<small>
+					<span ng-repeat="day in person.days">{{day|date:'EEE'}} </span>
+				</small>
+				<span ng-show="person.dateOk" class="glyphicon glyphicon-ok"></span>
+				<span ng-show="person.dif" class="text-warning"><span class="glyphicon glyphicon-pencil"></span> DIF</span>
+			</h2>
+		</div>
+	</div>
+</div>
+
+<div class="container" ng-show="list.length > 2">
+	<table class="table table-striped">
+		<thead>
+		<tr>
+			<th style="width: 25px"></th>
+			<th>Nom</th>
+			<th>Prénom</th>
+			<th>Société</th>
+			<th>Billet</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr ng-repeat="person in list" ng-if="$index > 1">
+			<td><span style="height: 20px" gravatar size="125" email-hash="{{person.mailmd5}}"></span></td>
+			<td>{{person.nom}}</td>
+			<td>{{person.prenom}}</td>
+			<td>{{person.societe}}</td>
+			<td>
+				<span ng-class="{'text-primary': person.speaker}">
+					{{person.type}} <span ng-show="person.dateOk" class="glyphicon glyphicon-ok"></span>
+				</span>
+				<span ng-show="person.dif" class="text-warning"><span class="glyphicon glyphicon-pencil"></span> DIF</span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+
+</div>
+</body>
+
+</html>

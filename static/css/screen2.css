@@ -1,0 +1,8 @@
+.botborder {
+	border-bottom: 1px #cccccc solid;
+}
+
+div.jumbotron {
+	padding-top: 0;
+	padding-bottom: 15px;
+}
