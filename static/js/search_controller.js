@@ -14,7 +14,6 @@ entrance.controller('search', function($scope, $timeout, $http) {
 			return;
 		}
 
-		//console.log(event);
 		switch (event.keyCode) {
 			case 13: //enter
 				if (!$scope.toSecondScreen) {
@@ -51,8 +50,7 @@ entrance.controller('search', function($scope, $timeout, $http) {
 				break;
 
 			case 27: //esc
-				$scope.s = "";
-				$timeout(resetResults);
+				$timeout(clearSearch);
 				break;
 		}
 	};
@@ -91,6 +89,12 @@ entrance.controller('search', function($scope, $timeout, $http) {
 		$http.post('/checkin', {person: $scope.person}).success(function(data) {
 			resetResults();
 		});
+	};
+
+	/** Clear search form and reset results */
+	var clearSearch = function() {
+		$scope.s = "";
+		resetResults();
 	};
 
 	/** Clear scope from previous result */

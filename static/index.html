@@ -30,6 +30,11 @@
 			<a class="navbar-brand" href="#">Breizhcamp</a>
 		</div>
 		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+				<li><a href="2.html">Badges</a></li>
+				<li><a href="2.html#/?dif=true">DIF</a></li>
+			</ul>
+
 			<form class="navbar-form navbar-right" role="form">
 				<div class="form-group">
 					<input type="text" id="s" placeholder="Id, nom, prénom, société..."
@@ -37,7 +42,7 @@
 						   ng-model="s" select-on-enter
 						   ng-keypress="keypress($event)" >
 				</div>
-				<div class="btn btn-success" ng-hide="toSecondScreen" ng-click="searchTime()">
+				<div class="btn btn-primary" ng-hide="toSecondScreen" ng-click="searchTime()">
 					<span class="glyphicon glyphicon-search"></span>
 				</div>
 

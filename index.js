@@ -91,24 +91,34 @@ app.post('/checkin', function(req, res) {
  * 2ND SCREEN COMMUNICATION BY SOCKET.IO
  */
 io.sockets.on('connection', function (socket) {
-	//send initial person list
-	client.search({
-		index: 'participants',
-		type: 'participant',
-		body: {
-			query: {
-				filtered: {
-					query: { match_all: {} },
-					filter: {
-						exists: { field: 'checkin' }
-					}
-				}
-			},
-			sort: [ { checkin: { order: 'desc' } } ],
-			size: 7
+
+	socket.on('init', function(options) {
+		var query;
+		if (options && options.dif) {
+			query = { match: { dif: true } };
+		} else {
+			query = { match_all: {} };
 		}
-	}).then(function(resp) {
-		socket.emit('init', resp.hits.hits.map(function(r) { return r._source; }));
+
+		//send initial person list
+		client.search({
+			index: 'participants',
+			type: 'participant',
+			body: {
+				query: {
+					filtered: {
+						query: query,
+						filter: {
+							exists: { field: 'checkin' }
+						}
+					}
+				},
+				sort: [ { checkin: { order: 'desc' } } ],
+				size: 7
+			}
+		}).then(function(resp) {
+			socket.emit('init', resp.hits.hits.map(function(r) { return r._source; }));
+		});
 	});
 });
 

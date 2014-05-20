@@ -1,6 +1,8 @@
 var entrance = angular.module('entrance', ['ioService']);
 
-entrance.controller('screen2', function($scope, $timeout, SocketIO) {
+entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
+
+	var dif = !!$location.search()['dif'];
 
 	SocketIO.connect();
 
@@ -22,10 +24,11 @@ entrance.controller('screen2', function($scope, $timeout, SocketIO) {
 			}
 		}
 
-		console.log($scope.list);
 	});
 
 	SocketIO.on('checkin', function(person) {
+		if (dif && !person.dif) return; //don't add non dif person if we filter for dif
+
 		//remove if id already exist
 		for (var i = 0 ; i < $scope.list.length ; i++) {
 			if ($scope.list[i].id == person.id) {
@@ -39,4 +42,9 @@ entrance.controller('screen2', function($scope, $timeout, SocketIO) {
 		if (length > 7) $scope.list.pop();
 	});
 
+	SocketIO.on('reconnect', function() {
+		SocketIO.emit('init', { dif: dif });
+	});
+
+	SocketIO.emit('init', { dif: dif });
 });
