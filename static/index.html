@@ -7,9 +7,29 @@
 	<title>Entrance</title>
 
 	<!-- Bootstrap -->
-	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bootstrap.css" rel="stylesheet">
 	<link href="css/main.css" rel="stylesheet">
 
+	<!-- QR Code -->
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/grid.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/version.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/detector.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/formatinf.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/errorlevel.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/bitmat.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/datablock.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/bmparser.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/datamask.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/rsdecoder.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/gf256poly.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/gf256.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/decoder.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/qrcode.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/findpat.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/alignpat.js"></script>
+	<script type="text/javascript" src="js/vendor/jsqrcode-master/src/databr.js"></script>
+
+	<!-- Other libs -->
 	<script src="js/vendor/moment.min.js"></script>
 	<script src="js/vendor/angular.min.js"></script>
 	<script src="js/vendor/angular-locale_fr-fr.js"></script>
@@ -54,46 +74,59 @@
 	</div>
 </div>
 
-<div class="jumbotron" ng-show="person">
-	<div class="container">
-		<div class="pull-right"><span gravatar size="125" email-hash="{{person.mailmd5}}"></span></div>
-		<h1>{{person.nom}} {{person.prenom}}</h1>
-		<h1 style="margin-top: -45px" ng-show="person.societe"><small>{{person.societe}}</small></h1>
-
-		<h2 ng-class="{'text-primary': person.speaker, 'text-info': !person.speaker}">
-			{{person.type}}
-			<small>
-				<span ng-repeat="day in person.days">{{day|date:'EEE'}} </span>
-			</small>
-			<span ng-show="person.dateOk" class="glyphicon glyphicon-ok"></span>
-			<span ng-show="person.dif" class="text-warning"><span class="glyphicon glyphicon-pencil"></span> DIF</span>
-		</h2>
+<div class="container">
+	<div class="row webcam" ng-show="!person && !list">
+		<div class="col-md-12 text-center">
+			<qrcode model="qrcode.res" active="!person && !list && qrcode.active" found="foundQR()" width="640" height="480"></qrcode>
+		</div>
 	</div>
+
+	<div class="row" ng-show="person">
+		<div class="jumbotron">
+			<div class="container">
+				<div class="pull-right"><span gravatar size="125" email-hash="{{person.mailmd5}}"></span></div>
+				<h1>{{person.nom}} {{person.prenom}}</h1>
+				<h1 style="margin-top: -45px" ng-show="person.societe"><small>{{person.societe}}</small></h1>
+
+				<h2 ng-class="{'text-primary': person.speaker, 'text-info': !person.speaker}">
+					{{person.type}}
+					<small>
+						<span ng-repeat="day in person.days">{{day|date:'EEE'}} </span>
+					</small>
+					<span ng-show="person.dateOk" class="glyphicon glyphicon-ok"></span>
+					<span ng-show="person.dif" class="text-warning"><span class="glyphicon glyphicon-pencil"></span> DIF</span>
+				</h2>
+			</div>
+		</div>
+	</div>
+
+	<div class="row" ng-show="list">
+		<div class="col-md-12">
+			<table class="table">
+				<thead>
+				<tr>
+					<th>Code</th>
+					<th>Nom</th>
+					<th>Prénom</th>
+					<th>Société</th>
+					<th>Billet</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="person in list" ng-class="{active: active-1 == $index}">
+					<td>{{person.id}}</td>
+					<td>{{person.nom}}</td>
+					<td>{{person.prenom}}</td>
+					<td>{{person.societe}}</td>
+					<td>{{person.type}}</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
 </div>
 
-<div class="container" ng-show="list">
-	<table class="table">
-		<thead>
-		<tr>
-			<th>Code</th>
-			<th>Nom</th>
-			<th>Prénom</th>
-			<th>Société</th>
-			<th>Billet</th>
-		</tr>
-		</thead>
-		<tbody>
-		<tr ng-repeat="person in list" ng-class="{active: active-1 == $index}">
-			<td>{{person.id}}</td>
-			<td>{{person.nom}}</td>
-			<td>{{person.prenom}}</td>
-			<td>{{person.societe}}</td>
-			<td>{{person.type}}</td>
-		</tr>
-		</tbody>
-	</table>
-
-</div>
 </body>
 
 </html>

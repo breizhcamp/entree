@@ -3,6 +3,9 @@ var entrance = angular.module('entrance', []);
 entrance.controller('search', function($scope, $timeout, $http) {
 
 	var currentTimeSearch;
+	$scope.qrcode = {
+		active: true
+	};
 
 	/**
 	 * Called when a key is pressed into the search field
@@ -55,6 +58,12 @@ entrance.controller('search', function($scope, $timeout, $http) {
 		}
 	};
 
+	$scope.foundQR = function() {
+		$scope.qrcode.active = false;
+		$scope.s = $scope.qrcode.res;
+		$scope.search($scope.s);
+	};
+
 	/** Delay called to search in order to let binding to $scope.s to be over */
 	$scope.searchTime = function() {
 		if (currentTimeSearch) {
@@ -103,6 +112,7 @@ entrance.controller('search', function($scope, $timeout, $http) {
 		delete $scope.person;
 		delete $scope.list;
 		delete $scope.active;
+		$scope.qrcode.active = true;
 	};
 
 	/**
@@ -127,3 +137,65 @@ entrance.controller('search', function($scope, $timeout, $http) {
 		$scope.person = person;
 	}
 });
+/*
+var webkit, moz, gCtx;
+function load() {
+	gCtx = document.getElementById("qr-canvas").getContext("2d");
+	gCtx.clearRect(0, 0, 800, 600);
+
+	setwebcam();
+
+	qrcode.callback = function(res) {
+		console.log(res);
+		setTimeout(captureToCanvas, 100);
+	};
+}
+
+function success(stream) {
+	if(webkit)
+		v.src = window.webkitURL.createObjectURL(stream);
+	else
+	if(moz)
+	{
+		v.mozSrcObject = stream;
+		v.play();
+	}
+	else
+		v.src = stream;
+
+	setTimeout(captureToCanvas, 100);
+}
+
+function error(error) {
+	alert('error webcam');
+}
+
+function captureToCanvas() {
+	try {
+		gCtx.drawImage(v,0,0);
+		qrcode.decode();
+	} catch(e){
+		setTimeout(captureToCanvas, 100);
+	}
+}
+
+function setwebcam()
+{
+	var n=navigator;
+	v=document.getElementById("v");
+
+	if(n.getUserMedia)
+		n.getUserMedia({video: true, audio: false}, success, error);
+	else
+	if(n.webkitGetUserMedia)
+	{
+		webkit=true;
+		n.webkitGetUserMedia({video: true, audio: false}, success, error);
+	}
+	else
+	if(n.mozGetUserMedia)
+	{
+		moz=true;
+		n.mozGetUserMedia({video: true, audio: false}, success, error);
+	}
+}*/
