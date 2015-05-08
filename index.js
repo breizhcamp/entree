@@ -2,27 +2,26 @@
  * Interface Web de consultation
  */
 
-var express = require('express'),
-	app = express(),
-	server = require('http').createServer(app),
-	io = require('socket.io').listen(server),
-	bodyParser = require('body-parser'),
+var restify = require('restify'),
+	socketio = require('socket.io'),
 	elasticsearch = require('elasticsearch');
 
 var client = new elasticsearch.Client({
 	host: 'localhost:9200'
 });
 
-app.use(express.static(__dirname + '/static'));
-app.use(bodyParser.json());
+var server = restify.createServer();
+var io = socketio.listen(server.server);
+server.use(restify.bodyParser());
 
 /**
  * SEARCH QUERY
  */
-app.post('/s', function(req, res){
+server.post('/s', function (req, res, next) {
 	var search = req.body.s;
 	if (!search) {
-		res.json([]);
+		res.send([]);
+		return next();
 	}
 
 	var query;
@@ -58,9 +57,10 @@ app.post('/s', function(req, res){
 			query: query
 		}
 	}).then(function(resp) {
-		res.json(resp.hits.hits.map(function(r) { return r._source; }));
+		res.send(resp.hits.hits.map(function(r) { return r._source; }));
+		next();
 	}, function(err) {
-		res.send(500, err);
+		next.ifError(err);
 	});
 });
 
@@ -68,7 +68,7 @@ app.post('/s', function(req, res){
  * USER CHECK-IN
  * update user in ES and send to all second screen connected
  */
-app.post('/checkin', function(req, res) {
+server.post('/checkin', function(req, res, next) {
 	var person = req.body.person;
 	person.checkin = new Date();
 	client.update({
@@ -83,7 +83,8 @@ app.post('/checkin', function(req, res) {
 	}).then(function() {
 		//dispatch event to every 2nd screen connected
 		io.sockets.emit('checkin', person);
-		res.send(204).end();
+		res.send(204, "");
+		return next();
 	});
 });
 
@@ -122,5 +123,20 @@ io.sockets.on('connection', function (socket) {
 	});
 });
 
-server.listen(3000);
-console.log("Server running on http://localhost:3000");
+server.get('/.*', restify.serveStatic({
+	directory: './static',
+	default: 'index.html'
+}));
+
+
+// ----------------------------------    INIT    ----------------------------------------------------
+process.on('message', function(message) {
+	if (message === 'shutdown') {
+		process.exit(0);
+	}
+});
+
+server.listen(3000, function() {
+	console.log('%s listening at %s', server.name, server.url);
+	if (process.send) process.send('online');
+});
