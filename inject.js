@@ -11,7 +11,11 @@ var client = new elasticsearch.Client({
 
 //check index exists
 client.indices.exists({	index: 'participants' }).then(function(data) {
-	if (data) return;
+	if (data) {
+		return client.indices.delete({ index: 'participants' });
+	}
+
+}).then(function() {
 	return client.indices.create({
 		index: 'participants',
 		body: {
@@ -69,19 +73,22 @@ function injectCSV() {
 				//days
 			};
 			participant.mailmd5 = crypto.createHash('md5').update(participant.mail).digest("hex");
-			if (data['Societe Participant']) participant.societe = data['Societe Participant'];
+			if (data['Societe Participant']) {
+				participant.societe = data['Societe Participant'];
+			} else if (data['Societe Acheteur']) {
+				participant.societe = data['Societe Acheteur'];
+			}
 
 			//injecting days the participant has access
 			var days;
 			switch (participant.type) {
-				case 'combo BreizhCamp 2014':
-				case 'Early Bird (-30%)':
-				case 'Speaker':
-				case 'Sponsor': days = ['2014-05-21', '2014-05-22', '2014-05-23']; break;
-				case 'BreizhCamp conférence': days = ['2014-05-22', '2014-05-23']; break;
-				case 'Hacker-space': days = ['2014-05-21']; break;
-				case 'Conférence, Day 1': days = ['2014-05-22']; break;
-				case 'Conférence, Day 2': days = ['2014-05-23']; break;
+				case 'exposant':
+				case 'Sponsors':
+				case 'Combo':
+				case 'Billet entreprise':
+				case 'Supporter': days = ['2015-06-10', '2015-06-11', '2015-06-12']; break;
+				case 'Hacker-space': days = ['2015-06-10']; break;
+				case 'Conférence': days = ['2015-06-11', '2015-06-12']; break;
 			}
 			participant.days = days;
 
