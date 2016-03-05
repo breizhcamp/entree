@@ -2,6 +2,10 @@
 	border-bottom: 1px #cccccc solid;
 }
 
+.bg {
+	background-color: #eee;
+}
+
 div.jumbotron {
 	padding-top: 0;
 	padding-bottom: 15px;
@@ -20,4 +24,28 @@ div.desk-buttons {
 
 .desk-buttons div {
 	margin-bottom: 5px;
+}
+
+.col {
+	float: left;
+	position: relative;
+	padding: 0 15px;
+}
+
+.persons {
+	padding: 5px;
+}
+
+.persons h1 {
+	margin-bottom: 0;
+}
+.persons h2 {
+	margin: 0;
+}
+.persons h3 {
+	margin: 0;
+}
+.persons h4 {
+	color: #777;
+	margin: 0;
 }

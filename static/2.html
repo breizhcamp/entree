@@ -22,16 +22,35 @@
 </head>
 <body ng-controller="screen2">
 
-<div class="desk-buttons" ng-click="updateActiveDesks()">
+<div class="desk-buttons">
 	<div ng-repeat="d in desks">
 		<button class="btn" ng-class="{active: d.active, 'btn-default': !d.active, 'btn-primary': d.active}" ng-click="d.active = !d.active">{{d.name}}</button></div>
 </div>
 
 <div class="container-fluid">
 	<div class="row">
-		<div ng-repeat="d in activeDesks" class="col-xs-{{colWidth}}"><h2>{{d}}</h2></div>
+		<div ng-repeat="d in activeDesks" class="col" style="width: {{colWidth}}%">
+			<h1 class="text-center">{{d}}</h1>
+
+			<div class="persons botborder" ng-class="{bg: $index < 2}" ng-repeat="person in list | filter:{desk: d}:true">
+				<h1>{{person.id}}</h1>
+				<h2>{{person.nom}} {{person.prenom}}</h2>
+				<h4 ng-show="person.societe">{{person.societe}}</h4>
+
+				<h3 class="text-primary">
+					<span class="glyphicon glyphicon-bullhorn" ng-show="person.speaker"></span>
+					{{person.type}}
+					<small>
+						<span ng-repeat="day in person.days">{{day|date:'EEE'}} </span>
+					</small>
+					<span ng-show="person.dateOk" class="glyphicon glyphicon-ok"></span>
+				</h3>
+			</div>
+		</div>
 	</div>
 </div>
+
+<!--
 
 <div class="jumbotron" ng-show="list.length > 0">
 	<div class="container">
@@ -77,6 +96,9 @@
 	</table>
 
 </div>
+
+-->
+
 </body>
 
 </html>

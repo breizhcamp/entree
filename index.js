@@ -133,7 +133,7 @@ io.sockets.on('connection', function (socket) {
 					}
 				},
 				sort: [ { checkin: { order: 'desc' } } ],
-				size: 7
+				size: 25
 			}
 		}).then(function(resp) {
 			socket.emit('init', resp.hits.hits.map(function(r) { return r._source; }));

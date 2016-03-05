@@ -1,6 +1,6 @@
 var entrance = angular.module('entrance', ['ioService', 'directives', 'personService']);
 
-entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
+entrance.controller('screen2', function($scope, $timeout, $location, SocketIO, PersonService) {
 
 	$scope.desks = createDesks(['A', 'B', 'C', 'D', 'E']);
 
@@ -11,7 +11,7 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
 			if (d.active) activeDesks.push(d.name);
 		}
 		$scope.activeDesks = activeDesks;
-		$scope.colWidth = Math.floor(12 / activeDesks.length);
+		$scope.colWidth = Math.floor(100 / activeDesks.length);
 	}, true);
 
 	SocketIO.connect();
@@ -20,16 +20,8 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
 		$scope.list = list;
 
 		//add some data to persons
-		var now = moment();
 		for (var i = 0 ; i < $scope.list.length ; i++) {
-			var person = $scope.list[i];
-
-			for (var j = 0 ; j < person.days.length ; j++) {
-				if (moment(person.days[j]).isSame(now, 'day')) {
-					person.dateOk = true;
-					break;
-				}
-			}
+			$scope.list[i] = PersonService.enhance($scope.list[i]);
 		}
 
 	});
@@ -45,7 +37,7 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
 
 		//add person on top and remove last if > 7
 		var length = $scope.list.unshift(person);
-		if (length > 7) $scope.list.pop();
+		if (length > 25) $scope.list.pop();
 	});
 
 	SocketIO.on('reconnect', function() {
