@@ -5,6 +5,8 @@ var csv = require("fast-csv"),
 	elasticsearch = require('elasticsearch'),
 	crypto = require('crypto');
 
+var bulk = [];
+
 var client = new elasticsearch.Client({
 	host: 'localhost:9200'
 });
@@ -59,59 +61,93 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 });
 
 function injectCSV() {
+	var curId = 0;
+
 	csv.fromPath("inscrits.csv", { headers: true, delimiter: ';', trim: true })
-		.on("record", function(data){
+		.transform(function(data) {
+
+			curId++;
 			var participant = {
-				id: data['# Code Barre'],
+				id: curId,
+				barcode: data['# Code Barre'],
 				nom: data['Nom participant'],
 				prenom: data['Prénom participant'],
-				mail: data['E-mail Participant'] ? data['E-mail Participant'] : data['E-mail Acheteur'],
-				type: data['Tarif'],
-				dif: !!data['utilisation du DIF']
+				mail: data['E-mail Participant'],
+				type: data['Tarif']
 				//mailmd5
 				//societe if filled
 				//days
 			};
 			participant.mailmd5 = crypto.createHash('md5').update(participant.mail).digest("hex");
-			if (data['Societe Participant']) {
-				participant.societe = data['Societe Participant'];
-			} else if (data['Societe Acheteur']) {
-				participant.societe = data['Societe Acheteur'];
+			if (data['Société']) {
+				participant.societe = data['Société'];
 			}
 
 			//injecting days the participant has access
 			var days;
 			switch (participant.type) {
 				case 'exposant':
-				case 'Sponsors':
-				case 'Combo':
-				case 'Billet entreprise':
-				case 'Supporter': days = ['2015-06-10', '2015-06-11', '2015-06-12']; break;
-				case 'Hacker-space': days = ['2015-06-10']; break;
-				case 'Conférence': days = ['2015-06-11', '2015-06-12']; break;
+				case 'Billets sponsor':
+				case 'Combo (3 jours)':
+				case 'Early bird (3 jours)':
+				case 'Billet speaker':
+				case 'Billet organisateur':
+				case 'Supporter':
+					days = ['2016-03-23', '2016-03-24', '2016-03-25'];
+					break;
+				case 'Université (mercredi)':
+					days = ['2016-03-23'];
+					break;
+				case 'Conférence (jeudi+vendredi)':
+					days = ['2016-03-24', '2016-03-25'];
+					break;
+			}
+			if (!days) {
+				console.log("Cannot retrieve days for " + participant.nom + " " + participant.prenom + " (" + participant.barcode + ")");
 			}
 			participant.days = days;
 
-			var that = this;
-			//pause during ES indexing
-			that.pause();
+			return participant;
+		})
+		.on("data", function(data) {
+			bulk.push({ index: { _index: 'participants', _type: 'participant', _id: data.barcode }});
+			bulk.push(data);
 
-			//indexing the participant
-			client.index({
-				index: 'participants',
-				type: 'participant',
-				id: participant.id,
-				body: participant
-			}, function() { that.resume(); });
+			if (bulk.length > 120) {
+				console.log("Indexing to id " + data.id);
+				var that = this;
+				//pause during ES indexing
+				that.pause();
+
+				//indexing bulk
+				indexBulk(function() { that.resume(); });
+			}
 		})
 		.on("end", function() {
-			client.indices.refresh({ index: 'participants' }).then(function() {
-				//count nb participants after refresh
-				return client.count({ index: 'participants' });
+			indexBulk(function() {
+				client.indices.refresh({ index: 'participants' }).then(function() {
+					//count nb participants after refresh
+					return client.count({ index: 'participants' });
 
-			}).then(function(data) {
-				console.log("Injection OVER, Nb participants: " + data.count);
-				client.close();
+				}).then(function(data) {
+					console.log("Injection OVER, Nb participants: " + data.count);
+					client.close();
+				});
 			});
 		});
+}
+
+
+function indexBulk(callback) {
+	if (bulk.length == 0) {
+		callback();
+		return;
+	}
+
+	client.bulk({
+		body: bulk
+	}, function(err, resp) {
+		bulk = [];
+		callback(err, resp);
+	});
 }
