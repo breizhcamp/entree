@@ -1,4 +1,4 @@
-var entrance = angular.module('entrance', ['ioService']);
+var entrance = angular.module('entrance', ['ioService', 'directives', 'personService']);
 
 entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
 
