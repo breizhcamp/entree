@@ -1,6 +1,6 @@
-var entrance = angular.module('entrance', []);
+var entrance = angular.module('entrance', ['personService', 'directives']);
 
-entrance.controller('search', function($scope, $timeout, $http) {
+entrance.controller('search', function($scope, $timeout, $http, PersonService) {
 
 	var currentTimeSearch;
 	$scope.qrcode = {
@@ -121,81 +121,6 @@ entrance.controller('search', function($scope, $timeout, $http) {
 	 */
 	var showPerson = function(person) {
 		$scope.toSecondScreen = true;
-		if (person.type == 'Speaker') {
-			person.speaker = true;
-		}
-
-		//compute day ok
-		var now = moment();
-		for (var i = 0 ; i < person.days.length ; i++) {
-			if (moment(person.days[i]).isSame(now, 'day')) {
-				person.dateOk = true;
-				break;
-			}
-		}
-
-		$scope.person = person;
+		$scope.person = PersonService.enhance(person);
 	}
 });
-/*
-var webkit, moz, gCtx;
-function load() {
-	gCtx = document.getElementById("qr-canvas").getContext("2d");
-	gCtx.clearRect(0, 0, 800, 600);
-
-	setwebcam();
-
-	qrcode.callback = function(res) {
-		console.log(res);
-		setTimeout(captureToCanvas, 100);
-	};
-}
-
-function success(stream) {
-	if(webkit)
-		v.src = window.webkitURL.createObjectURL(stream);
-	else
-	if(moz)
-	{
-		v.mozSrcObject = stream;
-		v.play();
-	}
-	else
-		v.src = stream;
-
-	setTimeout(captureToCanvas, 100);
-}
-
-function error(error) {
-	alert('error webcam');
-}
-
-function captureToCanvas() {
-	try {
-		gCtx.drawImage(v,0,0);
-		qrcode.decode();
-	} catch(e){
-		setTimeout(captureToCanvas, 100);
-	}
-}
-
-function setwebcam()
-{
-	var n=navigator;
-	v=document.getElementById("v");
-
-	if(n.getUserMedia)
-		n.getUserMedia({video: true, audio: false}, success, error);
-	else
-	if(n.webkitGetUserMedia)
-	{
-		webkit=true;
-		n.webkitGetUserMedia({video: true, audio: false}, success, error);
-	}
-	else
-	if(n.mozGetUserMedia)
-	{
-		moz=true;
-		n.mozGetUserMedia({video: true, audio: false}, success, error);
-	}
-}*/

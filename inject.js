@@ -107,10 +107,25 @@ function injectCSV() {
 			}
 			participant.days = days;
 
+			//shorten tickets type label
+			var type = participant.type;
+			switch (participant.type) {
+				case 'Billets sponsor': type = 'Sponsor'; break;
+				case 'Combo (3 jours)': type = 'Combo'; break;
+				case 'Early bird (3 jours)': type = 'Early bird'; break;
+				case 'Billet speaker': type = 'Speaker'; break;
+				case 'Billet organisateur': type = 'Orga'; break;
+				case 'Université (mercredi)': type = 'Université'; break;
+				case 'Conférence (jeudi+vendredi)': type = 'Conférence'; break;
+			}
+			participant.type = type;
+
+			if (type == 'Speaker') participant.speaker = true;
+
 			return participant;
 		})
 		.on("data", function(data) {
-			bulk.push({ index: { _index: 'participants', _type: 'participant', _id: data.barcode }});
+			bulk.push({ index: { _index: 'participants', _type: 'participant', _id: data.id }});
 			bulk.push(data);
 
 			if (bulk.length > 120) {

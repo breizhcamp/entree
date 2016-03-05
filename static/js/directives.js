@@ -1,5 +1,6 @@
+angular.module('directives', [])
 /** Select text on input field when enter is pressed */
-entrance.directive('selectOnEnter', function () {
+.directive('selectOnEnter', function () {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -10,10 +11,10 @@ entrance.directive('selectOnEnter', function () {
 			});
 		}
 	};
-});
+})
 
 /** Display gravatar icon */
-entrance.directive('gravatar', function() {
+.directive('gravatar', function() {
 	return {
 		restrict: 'AE',
 		replace: true,
@@ -24,10 +25,10 @@ entrance.directive('gravatar', function() {
 		},
 		template: '<img alt="{{ name }}" src="https://secure.gravatar.com/avatar/{{ emailHash }}.jpg?s={{ size }}&d=blank">'
 	};
-});
+})
 
 /** qrcode scan */
-entrance.directive('qrcode', function() {
+.directive('qrcode', function() {
 	return {
 		restrict: 'E',
 		replace: true,

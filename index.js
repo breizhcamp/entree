@@ -28,24 +28,42 @@ server.post('/s', function (req, res, next) {
 	if (isNaN(search)) {
 		//textual search
 		query = {
-			bool: {
-				should: [
-					{ wildcard: { "nom": { value: search + "*", boost: 5.0 } } },
-					{ wildcard: { "prenom": { value: search + "*", boost: 4.0 } } },
-					{
-						fuzzy_like_this: {
-							fields: ["id", "nom", "prenom", "societe", "mail"],
-							like_text: search
+			"query": {
+				"bool": {
+					"should": [
+						{
+							"multi_match": {
+								"query": search,
+								"fields": [	"nom", "prenom" ],
+								"fuzziness": "AUTO"
+							}
+						},
+						{
+							"match_phrase_prefix": {
+								"prenom": {
+									"query": search
+								}
+							}
+						},
+						{
+							"match_phrase_prefix": {
+								"nom": {
+									"query": search
+								}
+							}
 						}
-					}
-				]
+					]
+				}
 			}
 		}
 	} else {
 		//id search
 		query = {
-			ids: {
-				values: [search]
+			"bool": {
+				"should": [
+					{ "term": { "id": search } },
+					{ "term": { "barcode": search } }
+				]
 			}
 		}
 	}
@@ -60,7 +78,7 @@ server.post('/s', function (req, res, next) {
 		res.send(resp.hits.hits.map(function(r) { return r._source; }));
 		next();
 	}, function(err) {
-		next.ifError(err);
+		next(new restify.InternalServerError(err.message));
 	});
 });
 

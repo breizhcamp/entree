@@ -13,9 +13,7 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
 		var now = moment();
 		for (var i = 0 ; i < $scope.list.length ; i++) {
 			var person = $scope.list[i];
-			if (person.type == 'Speaker') {
-				person.speaker = true;
-			}
+
 			for (var j = 0 ; j < person.days.length ; j++) {
 				if (moment(person.days[j]).isSame(now, 'day')) {
 					person.dateOk = true;
