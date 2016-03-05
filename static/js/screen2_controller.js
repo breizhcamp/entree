@@ -2,7 +2,17 @@ var entrance = angular.module('entrance', ['ioService', 'directives', 'personSer
 
 entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
 
-	var dif = !!$location.search()['dif'];
+	$scope.desks = createDesks(['A', 'B', 'C', 'D', 'E']);
+
+	$scope.$watch('desks', function(desks) {
+		var activeDesks = [];
+		for (var i = 0; i < desks.length; i++) {
+			var d = desks[i];
+			if (d.active) activeDesks.push(d.name);
+		}
+		$scope.activeDesks = activeDesks;
+		$scope.colWidth = Math.floor(12 / activeDesks.length);
+	}, true);
 
 	SocketIO.connect();
 
@@ -25,8 +35,6 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
 	});
 
 	SocketIO.on('checkin', function(person) {
-		if (dif && !person.dif) return; //don't add non dif person if we filter for dif
-
 		//remove if id already exist
 		for (var i = 0 ; i < $scope.list.length ; i++) {
 			if ($scope.list[i].id == person.id) {
@@ -41,8 +49,17 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO) {
 	});
 
 	SocketIO.on('reconnect', function() {
-		SocketIO.emit('init', { dif: dif });
+		SocketIO.emit('init');
 	});
 
-	SocketIO.emit('init', { dif: dif });
+	SocketIO.emit('init');
+
+	function createDesks(desksName) {
+		var desks = [];
+		for (var i = 0; i < desksName.length; i++) {
+			var name = desksName[i];
+			desks.push({ name: name, active: true });
+		}
+		return desks;
+	}
 });

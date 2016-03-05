@@ -22,6 +22,17 @@
 </head>
 <body ng-controller="screen2">
 
+<div class="desk-buttons" ng-click="updateActiveDesks()">
+	<div ng-repeat="d in desks">
+		<button class="btn" ng-class="{active: d.active, 'btn-default': !d.active, 'btn-primary': d.active}" ng-click="d.active = !d.active">{{d.name}}</button></div>
+</div>
+
+<div class="container-fluid">
+	<div class="row">
+		<div ng-repeat="d in activeDesks" class="col-xs-{{colWidth}}"><h2>{{d}}</h2></div>
+	</div>
+</div>
+
 <div class="jumbotron" ng-show="list.length > 0">
 	<div class="container">
 		<div ng-repeat="person in list" ng-if="$index < 2" ng-class="{botborder: $even}">

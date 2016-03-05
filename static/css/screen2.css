@@ -7,3 +7,17 @@ div.jumbotron {
 	padding-bottom: 15px;
 }
 
+.container-fluid {
+	margin-left: 55px;
+}
+
+div.desk-buttons {
+	float: left;
+	padding-top: 10px;
+	padding-left: 10px;
+	width: 55px;
+}
+
+.desk-buttons div {
+	margin-bottom: 5px;
+}
