@@ -34,6 +34,7 @@ div.desk-buttons {
 
 .persons {
 	padding: 5px;
+	overflow: hidden;
 }
 
 .persons h1 {
@@ -48,4 +49,9 @@ div.desk-buttons {
 .persons h4 {
 	color: #777;
 	margin: 0;
+}
+
+.dateKO {
+	color: #FF0000;
+	font-weight: bold;
 }

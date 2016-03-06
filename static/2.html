@@ -40,10 +40,9 @@
 				<h3 class="text-primary">
 					<span class="glyphicon glyphicon-bullhorn" ng-show="person.speaker"></span>
 					{{person.type}}
-					<small>
+					<small ng-class="{'dateKO': !person.dateOk}">
 						<span ng-repeat="day in person.days">{{day|date:'EEE'}} </span>
 					</small>
-					<span ng-show="person.dateOk" class="glyphicon glyphicon-ok"></span>
 				</h3>
 			</div>
 		</div>

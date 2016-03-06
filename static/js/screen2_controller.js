@@ -35,7 +35,7 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO, P
 			}
 		}
 
-		//add person on top and remove last if > 7
+		//add person on top and remove last if > 25
 		var length = $scope.list.unshift(person);
 		if (length > 25) $scope.list.pop();
 	});
