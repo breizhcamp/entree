@@ -60,7 +60,8 @@
 					<input type="text" id="s" placeholder="Id, nom, prénom, société..."
 						   class="form-control" autofocus tabindex="1"
 						   ng-model="s" select-on-enter
-						   ng-keypress="keypress($event)" >
+						   ng-keypress="keypress($event)"
+						   ng-keydown="keydown($event)">
 				</div>
 				<div class="btn btn-primary" ng-hide="toSecondScreen" ng-click="searchTime()">
 					<span class="glyphicon glyphicon-search"></span>
@@ -82,6 +83,7 @@
 	</div>
 
 	<div class="row" ng-show="person">
+		<div class="text-right text-primary">Appuyez sur <strong>Entrée</strong> pour valider (envoi badges), <strong>Echap</strong> pour annuler</div>
 		<div class="jumbotron">
 			<div class="container">
 				<div class="pull-right text-center">

@@ -12,11 +12,14 @@ entrance.controller('search', function($scope, $timeout, $http, PersonService) {
 	 * @param event Key pressed event containing (charCode / keyCode)
 	 */
 	$scope.keypress = function(event) {
-		if (event.charCode) {
-			$scope.searchTime();
+		if (!event.charCode || event.charCode < 32) {
 			return;
 		}
 
+		$scope.searchTime();
+	};
+
+	$scope.keydown = function(event) {
 		switch (event.keyCode) {
 			case 13: //enter
 				if (!$scope.toSecondScreen) {
@@ -72,7 +75,7 @@ entrance.controller('search', function($scope, $timeout, $http, PersonService) {
 		currentTimeSearch = $timeout(function() {
 			$scope.search($scope.s);
 			currentTimeSearch = null;
-		}, 50);
+		}, 150);
 	};
 
 	/**
