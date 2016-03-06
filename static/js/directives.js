@@ -74,7 +74,8 @@ angular.module('directives', [])
 				captureVideo();
 			}
 
-			function error() {
+			function error(e) {
+				console.log(e);
 				alert("Can't access to webcam");
 			}
 
