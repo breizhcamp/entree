@@ -63,7 +63,7 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 function injectCSV() {
 	var curId = 0;
 
-	csv.fromPath("inscrits.csv", { headers: true, delimiter: ';', trim: true })
+	csv.fromPath("inscrits.csv", { headers: true, delimiter: ',', trim: true })
 		.transform(function(data) {
 
 			curId++;
