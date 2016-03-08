@@ -61,14 +61,12 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 });
 
 function injectCSV() {
-	var curId = 0;
 
 	csv.fromPath("inscrits.csv", { headers: true, delimiter: ',', trim: true })
 		.transform(function(data) {
 
-			curId++;
 			var participant = {
-				id: curId,
+				id: data['Identifiant'],
 				barcode: data['# Code Barre'],
 				nom: data['Nom participant'],
 				prenom: data['Prénom participant'],
