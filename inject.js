@@ -62,12 +62,12 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 
 function injectCSV() {
 
-	csv.fromPath("inscrits.csv", { headers: true, delimiter: ',', trim: true })
+	csv.fromPath("inscrits.csv", { headers: true, delimiter: ';', trim: true })
 		.transform(function(data) {
 
 			var participant = {
 				id: data['Identifiant'],
-				barcode: data['# Code Barre'],
+				barcode: data['Code-barres'],
 				nom: data['Nom participant'],
 				prenom: data['Prénom participant'],
 				mail: data['E-mail Participant'],
@@ -77,27 +77,28 @@ function injectCSV() {
 				//days
 			};
 			participant.mailmd5 = crypto.createHash('md5').update(participant.mail).digest("hex");
-			if (data['Société']) {
-				participant.societe = data['Société'];
+			if (data['Societe Participant']) {
+				participant.societe = data['Societe Participant'];
 			}
 
 			//injecting days the participant has access
 			var days;
 			switch (participant.type) {
 				case 'exposant':
-				case 'Billets sponsor':
-				case 'Combo (3 jours)':
-				case 'Early bird (3 jours)':
-				case 'Billet speaker':
-				case 'Billet organisateur':
-				case 'Supporter':
-					days = ['2016-03-23', '2016-03-24', '2016-03-25'];
+				case 'bénévoles':
+				case 'sponsor':
+				case 'last minute':
+				case 'Combo 3 jours':
+				case 'Speaker':
+				case 'Organisateur':
+				case 'Fanboy (3 jours)':
+					days = ['2017-04-19', '2017-04-20', '2017-04-21'];
 					break;
 				case 'Université (mercredi)':
-					days = ['2016-03-23'];
+					days = ['2017-04-19'];
 					break;
 				case 'Conférence (jeudi+vendredi)':
-					days = ['2016-03-24', '2016-03-25'];
+					days = ['2017-04-20', '2017-04-21'];
 					break;
 			}
 			if (!days) {
@@ -108,11 +109,14 @@ function injectCSV() {
 			//shorten tickets type label
 			var type = participant.type;
 			switch (participant.type) {
-				case 'Billets sponsor': type = 'Sponsor'; break;
-				case 'Combo (3 jours)': type = 'Combo'; break;
-				case 'Early bird (3 jours)': type = 'Early bird'; break;
-				case 'Billet speaker': type = 'Speaker'; break;
-				case 'Billet organisateur': type = 'Orga'; break;
+				case 'exposant': type = 'Exposant'; break;
+				case 'bénévoles': type = 'Bénévole'; break;
+				case 'sponsor': type = 'Sponsor'; break;
+				case 'last minute': type = 'Combo'; break;
+				case 'Combo 3 jours': type = 'Combo'; break;
+				//case 'Speaker': type = 'Speaker'; break;
+				case 'Organisateur': type = 'Orga'; break;
+				case 'Fanboy (3 jours)': type = 'Combo Fan'; break;
 				case 'Université (mercredi)': type = 'Université'; break;
 				case 'Conférence (jeudi+vendredi)': type = 'Conférence'; break;
 			}
