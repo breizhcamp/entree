@@ -28,32 +28,30 @@ server.post('/s', function (req, res, next) {
 	if (isNaN(search)) {
 		//textual search
 		query = {
-			"query": {
-				"bool": {
-					"should": [
-						{
-							"multi_match": {
-								"query": search,
-								"fields": [	"nom", "prenom" ],
-								"fuzziness": "AUTO"
-							}
-						},
-						{
-							"match_phrase_prefix": {
-								"prenom": {
-									"query": search
-								}
-							}
-						},
-						{
-							"match_phrase_prefix": {
-								"nom": {
-									"query": search
-								}
+			"bool": {
+				"should": [
+					{
+						"multi_match": {
+							"query": search,
+							"fields": [	"nom", "prenom" ],
+							"fuzziness": "AUTO"
+						}
+					},
+					{
+						"match_phrase_prefix": {
+							"prenom": {
+								"query": search
 							}
 						}
-					]
-				}
+					},
+					{
+						"match_phrase_prefix": {
+							"nom": {
+								"query": search
+							}
+						}
+					}
+				]
 			}
 		}
 	} else {
@@ -111,24 +109,16 @@ server.post('/checkin', function(req, res, next) {
  */
 io.sockets.on('connection', function (socket) {
 
-	socket.on('init', function(options) {
-		var query;
-		if (options && options.dif) {
-			query = { match: { dif: true } };
-		} else {
-			query = { match_all: {} };
-		}
-
+	socket.on('init', function() {
 		//send initial person list
 		client.search({
 			index: 'participants',
 			type: 'participant',
 			body: {
 				query: {
-					filtered: {
-						query: query,
-						filter: {
-							exists: { field: 'checkin' }
+					"constant_score" : {
+						"filter" : {
+							"exists": { "field": "checkin" }
 						}
 					}
 				},
@@ -137,6 +127,8 @@ io.sockets.on('connection', function (socket) {
 			}
 		}).then(function(resp) {
 			socket.emit('init', resp.hits.hits.map(function(r) { return r._source; }));
+		}, function(err) {
+			console.log("Error when retrieving last checkin", err);
 		});
 	});
 });
