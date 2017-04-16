@@ -1,8 +1,13 @@
-var entrance = angular.module('entrance', ['ioService', 'directives', 'personService']);
+var entrance = angular.module('entrance', ['ioService', 'directives', 'personService', 'angularMoment']);
 
-entrance.controller('screen2', function($scope, $timeout, $location, SocketIO, PersonService) {
+entrance.run(function (amMoment) {
+	amMoment.changeLocale('fr');
+});
 
-	$scope.desks = createDesks(['A', 'B', 'C', 'D', 'E']);
+entrance.controller('screen2', function($scope, $interval, SocketIO, PersonService) {
+
+	$scope.desks = createDesks(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
+	$scope.list = [];
 
 	$scope.$watch('desks', function(desks) {
 		var activeDesks = [];
@@ -14,16 +19,15 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO, P
 		$scope.colWidth = Math.floor(100 / activeDesks.length);
 	}, true);
 
+	$interval(enhancePersonList, 10000);
+
 	SocketIO.connect();
 
 	SocketIO.on('init', function(list) {
 		$scope.list = list;
 
 		//add some data to persons
-		for (var i = 0 ; i < $scope.list.length ; i++) {
-			$scope.list[i] = PersonService.enhance($scope.list[i]);
-		}
-
+		enhancePersonList();
 	});
 
 	SocketIO.on('checkin', function(person) {
@@ -36,6 +40,7 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO, P
 		}
 
 		//add person on top and remove last if > 25
+		PersonService.enhance(person);
 		var length = $scope.list.unshift(person);
 		if (length > 25) $scope.list.pop();
 	});
@@ -53,5 +58,11 @@ entrance.controller('screen2', function($scope, $timeout, $location, SocketIO, P
 			desks.push({ name: name, active: true });
 		}
 		return desks;
+	}
+
+	function enhancePersonList() {
+		for (var i = 0; i < $scope.list.length; i++) {
+			$scope.list[i] = PersonService.enhance($scope.list[i]);
+		}
 	}
 });

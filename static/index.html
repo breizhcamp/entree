@@ -31,8 +31,10 @@
 
 	<!-- Other libs -->
 	<script src="js/vendor/moment.min.js"></script>
+	<script src="js/vendor/moment-fr.js"></script>
 	<script src="js/vendor/angular.min.js"></script>
 	<script src="js/vendor/angular-locale_fr-fr.js"></script>
+	<script src="js/vendor/angular-moment.min.js"></script>
 	<script src="js/directives.js"></script>
 	<script src="js/person_service.js"></script>
 	<script src="js/search_controller.js"></script>
@@ -76,11 +78,11 @@
 </div>
 
 <div class="container">
-	<div class="row webcam" ng-show="!person && !list">
+	<!--<div class="row webcam" ng-show="!person && !list">
 		<div class="col-md-12 text-center">
 			<qrcode model="qrcode.res" active="!person && !list && qrcode.active" found="foundQR()" width="640" height="480"></qrcode>
 		</div>
-	</div>
+	</div>-->
 
 	<div class="row" ng-show="person">
 		<div class="text-right text-primary">Appuyez sur <strong>Entrée</strong> pour valider (envoi badges), <strong>Echap</strong> pour annuler</div>

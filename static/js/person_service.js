@@ -4,15 +4,7 @@ angular.module('personService', [])
 		return {
 			enhance: function(person) {
 				//compute desk letter
-				var desk;
-				if (person.id >= 400) desk = 'E';
-				else if (person.id >= 300) desk = 'D';
-				else if (person.id >= 200) desk = 'C';
-				else if (person.id >= 100) desk = 'B';
-				else if (person.id >= 0) desk = 'A';
-				else desk = 'Z';
-
-				person.desk = desk;
+				person.desk = String.fromCharCode(65 + Math.floor(person.id / 100)); //65 = A
 
 				//compute day ok
 				var now = moment();
@@ -20,6 +12,17 @@ angular.module('personService', [])
 					if (moment(person.days[i]).isSame(now, 'day')) {
 						person.dateOk = true;
 						break;
+					}
+				}
+
+				if (person.checkin) {
+					var sec = now.diff(moment(person.checkin), 'seconds');
+					if (sec < 60) {
+						person.age = "young";
+					} else if (sec < 60 * 5) {
+						person.age = "normal";
+					} else {
+						person.age = "old";
 					}
 				}
 
