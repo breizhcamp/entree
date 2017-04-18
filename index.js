@@ -33,7 +33,7 @@ server.post('/s', function (req, res, next) {
 					{
 						"multi_match": {
 							"query": search,
-							"fields": [	"nom", "prenom" ],
+							"fields": [	"nom", "prenom","societe" ],
 							"fuzziness": "AUTO"
 						}
 					},
@@ -50,7 +50,15 @@ server.post('/s', function (req, res, next) {
 								"query": search
 							}
 						}
+					},
+					{
+						"match_phrase_prefix": {
+							"societe": {
+								"query": search
+							}
+						}
 					}
+
 				]
 			}
 		}
