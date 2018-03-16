@@ -12,7 +12,7 @@ var client = new elasticsearch.Client({
 
 var server = restify.createServer();
 var io = socketio.listen(server.server);
-server.use(restify.bodyParser());
+server.use(restify.plugins.bodyParser());
 
 /**
  * SEARCH QUERY
@@ -141,7 +141,7 @@ io.sockets.on('connection', function (socket) {
 	});
 });
 
-server.get('/.*', restify.serveStatic({
+server.get('/.*', restify.plugins.serveStatic({
 	directory: './static',
 	default: 'index.html'
 }));

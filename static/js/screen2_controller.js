@@ -6,7 +6,7 @@ entrance.run(function (amMoment) {
 
 entrance.controller('screen2', function($scope, $interval, SocketIO, PersonService) {
 
-	$scope.desks = createDesks(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
+	$scope.desks = createDesks(['A', 'B', 'C', 'D']);
 	$scope.list = [];
 
 	$scope.$watch('desks', function(desks) {

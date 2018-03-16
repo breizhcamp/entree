@@ -1,11 +1,13 @@
 /**
  * Permet d'injecter le CSV dans ElasticSearch
  */
+var DESK_NUMBER = 4;
+
 var csv = require("fast-csv"),
-	elasticsearch = require('elasticsearch'),
-	crypto = require('crypto');
+	elasticsearch = require('elasticsearch');
 
 var bulk = [];
+var cur_id = 1;
 
 var client = new elasticsearch.Client({
 	host: 'localhost:9200'
@@ -47,9 +49,11 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 		body: {
 			participant: {
 				properties: {
-					nom: { type: 'string', analyzer: 'french' },
-					prenom: { type: 'string', analyzer: 'french' },
-					societe: { type: 'string', analyzer: 'french' }
+					id: {type: 'keyword'},
+					nom: { type: 'text', analyzer: 'french' },
+					prenom: { type: 'text', analyzer: 'french' },
+					societe: { type: 'text', analyzer: 'french' },
+					desk: { type: 'keyword' }
 				}
 			}
 		}
@@ -65,41 +69,56 @@ function injectCSV() {
 	csv.fromPath("inscrits.csv", { headers: true, delimiter: ';', trim: true })
 		.transform(function(data) {
 
+			if (data['Catégorie'] === "Journée") {
+				return; //not parsing ticket for days in pass
+			}
+
+			var desk = String.fromCharCode(65 + (cur_id % DESK_NUMBER)); //65 = A
+			cur_id++;
+
 			var participant = {
-				id: data['Identifiant'],
-				barcode: data['Code-barres'],
-				nom: data['Nom participant'],
-				prenom: data['Prénom participant'],
-				mail: data['E-mail Participant'],
-				type: data['Tarif']
+				id: cur_id,
+				barcode: data['Codes-barres'],
+				nom: data['Nom'],
+				prenom: data['Prénom'],
+				mail: data['E-mail'],
+				type: data['Tarif'],
+				desk: desk
 				//mailmd5
 				//societe if filled
 				//days
 			};
-			participant.mailmd5 = crypto.createHash('md5').update(participant.mail).digest("hex");
-			if (data['Societe Participant']) {
-				participant.societe = data['Societe Participant'];
+			//participant.mailmd5 = crypto.createHash('md5').update(participant.mail).digest("hex");
+			if (data['Entreprise #11']) {
+				participant.societe = data['Entreprise #11'];
 			}
 
 			//injecting days the participant has access
 			var days;
 			switch (participant.type) {
-				case 'exposant':
-				case 'bénévoles':
-				case 'sponsor':
-				case 'last minute':
-				case 'Combo 3 jours':
+				case 'Exposant':
+				case 'Bénévole':
+				case 'Combo Sponsors (3 jours)':
+				case 'Combo (3 jours)':
 				case 'Speaker':
-				case 'Organisateur':
-				case 'Fanboy (3 jours)':
-					days = ['2017-04-19', '2017-04-20', '2017-04-21'];
+				case 'Organisation':
+					days = ['2018-03-28', '2018-03-29', '2018-03-30'];
 					break;
-				case 'Université (mercredi)':
-					days = ['2017-04-19'];
+				case 'Conférences (jeudi et vendredi)':
+				case 'Conférences Sponsors (jeudi et vendredi)':
+					days = ['2018-03-29', '2018-03-30'];
 					break;
-				case 'Conférence (jeudi+vendredi)':
-					days = ['2017-04-20', '2017-04-21'];
+
+				case 'Mercredi uniquement':
+					days = ['2018-03-28'];
 					break;
+				case 'Jeudi uniquement':
+					days = ['2018-03-29'];
+					break;
+				case 'Vendredi uniquement':
+					days = ['2018-03-29'];
+					break;
+
 			}
 			if (!days) {
 				console.log("Cannot retrieve days for " + participant.nom + " " + participant.prenom + " (" + participant.barcode + ")");
@@ -109,24 +128,26 @@ function injectCSV() {
 			//shorten tickets type label
 			var type = participant.type;
 			switch (participant.type) {
-				case 'exposant': type = 'Exposant'; break;
-				case 'bénévoles': type = 'Bénévole'; break;
-				case 'sponsor': type = 'Sponsor'; break;
-				case 'last minute': type = 'Combo'; break;
-				case 'Combo 3 jours': type = 'Combo'; break;
-				//case 'Speaker': type = 'Speaker'; break;
-				case 'Organisateur': type = 'Orga'; break;
-				case 'Fanboy (3 jours)': type = 'Combo Fan'; break;
+				case 'Combo Sponsors (3 jours)': type = 'Combo Sponsors'; break;
+				case 'Combo (3 jours)': type = 'Combo'; break;
 				case 'Université (mercredi)': type = 'Université'; break;
-				case 'Conférence (jeudi+vendredi)': type = 'Conférence'; break;
+				case 'Conférences (jeudi et vendredi)': type = 'Conférences'; break;
+				case 'Conférences Sponsors (jeudi et vendredi)': type = 'Confs Sponsors'; break;
+				case 'Mercredi uniquement': type = 'Mercredi'; break;
+				case 'Jeudi uniquement': type = 'Jeudi'; break;
+				case 'Vendredi uniquement': type = 'Vendredi'; break;
+
+				case 'Organisation': type = 'Orga'; break;
 			}
 			participant.type = type;
 
-			if (type == 'Speaker') participant.speaker = true;
+			if (type === 'Speaker') participant.speaker = true;
 
 			return participant;
 		})
 		.on("data", function(data) {
+			if (!data) return;
+
 			bulk.push({ index: { _index: 'participants', _type: 'participant', _id: data.id }});
 			bulk.push(data);
 
@@ -156,7 +177,7 @@ function injectCSV() {
 
 
 function indexBulk(callback) {
-	if (bulk.length == 0) {
+	if (bulk.length === 0) {
 		callback();
 		return;
 	}
