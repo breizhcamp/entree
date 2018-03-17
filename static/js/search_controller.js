@@ -83,10 +83,16 @@ entrance.controller('search', function($scope, $timeout, $http, PersonService) {
 	 * @param input Text to search
 	 */
 	$scope.search = function(input) {
+		$scope.selectSearch = false;
+
 		$http.post('s', {s: input}).success(function(data) {
 			resetResults();
-			if (data.length == 1) {
+			if (data.length === 1) {
 				showPerson(data[0]);
+
+				if (data[0].barcode === input) {
+					$scope.selectSearch = true;
+				}
 
 			} else {
 				//list of results

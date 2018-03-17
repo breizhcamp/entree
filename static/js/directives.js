@@ -1,9 +1,15 @@
 angular.module('directives', [])
 /** Select text on input field when enter is pressed */
-.directive('selectOnEnter', function () {
+.directive('selectOn', function () {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
+			scope.$watch(attrs.selectOn, function(newVal, oldVal) {
+				if (newVal && !oldVal) {
+					element[0].select();
+				}
+			});
+
 			element.on('keypress', function (event) {
 				if (event.keyCode == 13 || event.keyCode == 38 || event.keyCode == 40) {
 					this.select();
