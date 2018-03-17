@@ -69,7 +69,7 @@ function injectCSV() {
 	csv.fromPath("inscrits.csv", { headers: true, delimiter: ';', trim: true })
 		.transform(function(data) {
 
-			if (data['Catégorie'] === "Journée") {
+			if (data['Catégorie'] === "Journée" || data['Payé'] === "0") {
 				return; //not parsing ticket for days in pass
 			}
 
