@@ -25,6 +25,7 @@ server.post('/s', function (req, res, next) {
 	}
 
 	var query;
+
 	if (isNaN(search)) {
 		//textual search
 		query = {
@@ -64,6 +65,10 @@ server.post('/s', function (req, res, next) {
 		}
 	} else {
 		//id search
+		if (search.length === 12) {
+			search = search.substr(4, 7);
+		}
+
 		query = {
 			"bool": {
 				"should": [
@@ -81,8 +86,15 @@ server.post('/s', function (req, res, next) {
 			query: query
 		}
 	}).then(function(resp) {
-		res.send(resp.hits.hits.map(function(r) { return r._source; }));
+		var persons = resp.hits.hits.map(function(r) { return r._source; });
+		res.send(persons);
 		next();
+
+		//only one result and it's a barcode or id, let's autocheckin
+		if (persons.length === 1 && !persons[0].checkin && (persons[0].barcode === search || persons[0].id === search)) {
+			checkin(persons[0]); //dont wait until checkin
+		}
+
 	}, function(err) {
 		next(new restify.InternalServerError(err.message));
 	});
@@ -94,8 +106,15 @@ server.post('/s', function (req, res, next) {
  */
 server.post('/checkin', function(req, res, next) {
 	var person = req.body.person;
+	checkin(person).then(function() {
+		res.send(204, "");
+		return next();
+	});
+});
+
+function checkin(person) {
 	person.checkin = new Date();
-	client.update({
+	return client.update({
 		index: 'participants',
 		type: 'participant',
 		id: person.id,
@@ -107,10 +126,8 @@ server.post('/checkin', function(req, res, next) {
 	}).then(function() {
 		//dispatch event to every 2nd screen connected
 		io.sockets.emit('checkin', person);
-		res.send(204, "");
-		return next();
 	});
-});
+}
 
 /**
  * 2ND SCREEN COMMUNICATION BY SOCKET.IO
