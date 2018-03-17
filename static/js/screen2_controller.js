@@ -4,7 +4,7 @@ entrance.run(function (amMoment) {
 	amMoment.changeLocale('fr');
 });
 
-entrance.controller('screen2', function($scope, $interval, SocketIO, PersonService) {
+entrance.controller('screen2', function($scope, $interval, $http, SocketIO, PersonService) {
 
 	$scope.desks = createDesks(['A', 'B', 'C', 'D']);
 	$scope.list = [];
@@ -32,12 +32,7 @@ entrance.controller('screen2', function($scope, $interval, SocketIO, PersonServi
 
 	SocketIO.on('checkin', function(person) {
 		//remove if id already exist
-		for (var i = 0 ; i < $scope.list.length ; i++) {
-			if ($scope.list[i].id == person.id) {
-				$scope.list.splice(i, 1);
-				break;
-			}
-		}
+		removePersonFromList(person.id);
 
 		//add person on top and remove last if > 25
 		PersonService.enhance(person);
@@ -51,6 +46,11 @@ entrance.controller('screen2', function($scope, $interval, SocketIO, PersonServi
 
 	SocketIO.emit('init');
 
+	$scope.badge = function(person) {
+		removePersonFromList(person.id);
+		$http.post('badge', { person: person });
+	};
+
 	function createDesks(desksName) {
 		var desks = [];
 		for (var i = 0; i < desksName.length; i++) {
@@ -63,6 +63,15 @@ entrance.controller('screen2', function($scope, $interval, SocketIO, PersonServi
 	function enhancePersonList() {
 		for (var i = 0; i < $scope.list.length; i++) {
 			$scope.list[i] = PersonService.enhance($scope.list[i]);
+		}
+	}
+
+	function removePersonFromList(id) {
+		for (var i = 0; i < $scope.list.length; i++) {
+			if ($scope.list[i].id === id) {
+				$scope.list.splice(i, 1);
+				break;
+			}
 		}
 	}
 });

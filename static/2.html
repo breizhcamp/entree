@@ -36,7 +36,9 @@
 		<div ng-repeat="d in activeDesks" class="col" style="width: {{colWidth}}%">
 			<h1 class="text-center">{{d}}</h1>
 
-			<div class="persons botborder age-{{person.age}}" ng-class="{'highlight': person.age == 'young'}" ng-repeat="person in list | filter:{desk: d}:true">
+			<div class="persons botborder age-{{person.age}}" ng-class="{'highlight': person.age == 'young'}"
+				 ng-repeat="person in list | filter:{desk: d}:true" ng-click="badge(person)">
+
 				<div class="checkin-time"><span am-time-ago="person.checkin"></span></div>
 
 				<h1>{{person.id}} <span class="glyphicon glyphicon-bullhorn" ng-show="person.speaker"></span></h1>

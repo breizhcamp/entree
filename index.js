@@ -92,7 +92,7 @@ server.post('/s', function (req, res, next) {
 
 		//only one result and it's a barcode or id, let's autocheckin
 		if (persons.length === 1 && !persons[0].checkin && (persons[0].barcode === search || persons[0].id === search)) {
-			checkin(persons[0]); //dont wait until checkin
+			stamp(persons[0], 'checkin'); //dont wait until checkin
 		}
 
 	}, function(err) {
@@ -106,26 +106,43 @@ server.post('/s', function (req, res, next) {
  */
 server.post('/checkin', function(req, res, next) {
 	var person = req.body.person;
-	checkin(person).then(function() {
+	stamp(person, 'checkin').then(function() {
 		res.send(204, "");
 		return next();
 	});
 });
 
-function checkin(person) {
-	person.checkin = new Date();
+/**
+ * BADGE VALIDATION
+ * update user when badge is given at a desk
+ */
+server.post('/badge', function(req, res, next) {
+	var person = req.body.person;
+	stamp(person, 'badge', 'remove').then(function() {
+		res.send(204, "");
+		return next();
+	});
+});
+
+function stamp(person, attr, event) {
+	person[attr] = new Date();
+
+	var body = { doc: {} };
+	body.doc[attr] = person[attr];
+
+	if (attr === "checkin") {
+		body.doc.badge = null;
+	}
+
 	return client.update({
 		index: 'participants',
 		type: 'participant',
 		id: person.id,
-		body: {
-			doc: {
-				checkin: person.checkin
-			}
-		}
+		body: body
 	}).then(function() {
 		//dispatch event to every 2nd screen connected
-		io.sockets.emit('checkin', person);
+		var e = event ? event : attr;
+		io.sockets.emit(e, person);
 	});
 }
 
@@ -141,10 +158,9 @@ io.sockets.on('connection', function (socket) {
 			type: 'participant',
 			body: {
 				query: {
-					"constant_score" : {
-						"filter" : {
-							"exists": { "field": "checkin" }
-						}
+					"bool": {
+						"must": { "exists": {"field": "checkin"}},
+						"must_not": {"exists": { "field": "badge"}}
 					}
 				},
 				sort: [ { checkin: { order: 'desc' } } ],
