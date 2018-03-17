@@ -104,7 +104,7 @@ entrance.controller('search', function($scope, $timeout, $http, PersonService) {
 
 	/** Send current person to second screen */
 	$scope.sendToSecondScreen = function() {
-		$http.post('checkin', {person: $scope.person}).success(function(data) {
+		$http.post('checkin', {id: $scope.person.id}).success(function(data) {
 			resetResults();
 		});
 	};

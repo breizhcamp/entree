@@ -91,7 +91,7 @@ server.post('/s', function (req, res, next) {
 		next();
 
 		//only one result and it's a barcode or id, let's autocheckin
-		if (persons.length === 1 && !persons[0].checkin && (persons[0].barcode === search || persons[0].id === search)) {
+		if (persons.length === 1 && !persons[0].checkin && persons[0].barcode === search) {
 			stamp(persons[0], 'checkin'); //dont wait until checkin
 		}
 
@@ -105,10 +105,24 @@ server.post('/s', function (req, res, next) {
  * update user in ES and send to all second screen connected
  */
 server.post('/checkin', function(req, res, next) {
-	var person = req.body.person;
-	stamp(person, 'checkin').then(function() {
-		res.send(204, "");
-		return next();
+	var id = req.body.id;
+
+	client.get({
+		index: 'participants',
+		type: 'participant',
+		id: id
+	}, function (error, response) {
+		if (!response) {
+			res.send(204, "");
+			return next();
+		}
+
+		var person = response._source;
+
+		stamp(person, 'checkin').then(function() {
+			res.send(204, "");
+			return next();
+		});
 	});
 });
 
