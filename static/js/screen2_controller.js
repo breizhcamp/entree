@@ -40,6 +40,10 @@ entrance.controller('screen2', function($scope, $interval, $http, SocketIO, Pers
 		if (length > 25) $scope.list.pop();
 	});
 
+	SocketIO.on('remove', function(person) {
+		removePersonFromList(person.id);
+	});
+
 	SocketIO.on('reconnect', function() {
 		SocketIO.emit('init');
 	});

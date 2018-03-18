@@ -44,8 +44,7 @@ POST /checkin
 Permet de valider un billet et de l'envoyer sur les écrans de contrôle
 
 ```
-DELETE /checkin
-{id: "identifiant du billet"}
+DELETE /checkin/:id
 ```
 
 Permet de dévalider un billet et l'enlève des écrans de contrôle

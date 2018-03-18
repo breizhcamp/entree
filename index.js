@@ -105,8 +105,13 @@ server.post('/s', function (req, res, next) {
  * update user in ES and send to all second screen connected
  */
 server.post('/checkin', function(req, res, next) {
-	var id = req.body.id;
+	checkin(req.body.id, res, next, 'post');
+});
+server.del('/checkin/:id', function(req, res, next) {
+	checkin(req.params.id, res, next, 'delete');
+});
 
+function checkin(id, res, next, method) {
 	client.get({
 		index: 'participants',
 		type: 'participant',
@@ -119,12 +124,13 @@ server.post('/checkin', function(req, res, next) {
 
 		var person = response._source;
 
-		stamp(person, 'checkin').then(function() {
+		var event = method === 'post' ? 'checkin' : 'remove';
+		stamp(person, 'checkin', event).then(function () {
 			res.send(204, "");
 			return next();
 		});
 	});
-});
+}
 
 /**
  * BADGE VALIDATION
@@ -146,6 +152,10 @@ function stamp(person, attr, event) {
 
 	if (attr === "checkin") {
 		body.doc.badge = null;
+
+		if (event === "remove") {
+			body.doc.checkin = null;
+		}
 	}
 
 	return client.update({

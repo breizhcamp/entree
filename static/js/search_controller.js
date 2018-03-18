@@ -56,7 +56,7 @@ entrance.controller('search', function($scope, $timeout, $http, PersonService) {
 				break;
 
 			case 27: //esc
-				$timeout(clearSearch);
+				$timeout(uncheckin);
 				break;
 		}
 	};
@@ -108,6 +108,16 @@ entrance.controller('search', function($scope, $timeout, $http, PersonService) {
 			resetResults();
 		});
 	};
+
+	function uncheckin() {
+		if ($scope.person && $scope.person.id && !$scope.person.checkin) {
+			$http.delete('checkin/' + $scope.person.id).success(function(data) {
+				resetResults();
+			});
+		} else {
+			resetResults();
+		}
+	}
 
 	/** Clear search form and reset results */
 	var clearSearch = function() {
