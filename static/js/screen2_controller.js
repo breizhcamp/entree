@@ -6,7 +6,7 @@ entrance.run(function (amMoment) {
 
 entrance.controller('screen2', function($scope, $interval, $http, $location, SocketIO, PersonService) {
 
-	$scope.desks = createDesks(['A', 'B', 'C', 'D']);
+	$scope.desks = createDesks(['A', 'B', 'C']);
 	$scope.list = [];
 	$scope.showDeskConfig = false; //display desks button to configure display
 

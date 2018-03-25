@@ -73,17 +73,13 @@ function injectCSV() {
 				return; //not parsing ticket for days in pass
 			}
 
-			var cur_id = data['id'];
-			var desk = String.fromCharCode(65 + (cur_id % DESK_NUMBER)); //65 = A
-
 			var participant = {
-				id: cur_id,
+				id: data['id'],
 				barcode: data['Codes-barres'],
 				nom: data['lastname'],
 				prenom: data['firstname'],
 				mail: data['email'],
-				type: data['ticketType'],
-				desk: desk
+				type: data['ticketType']
 				//mailmd5
 				//societe if filled
 				//days

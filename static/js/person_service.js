@@ -3,6 +3,9 @@ angular.module('personService', [])
 	function () {
 		return {
 			enhance: function(person) {
+				//compute desk letter
+				person.desk = String.fromCharCode(65 + Math.floor(person.id / 250)); //65 = A - 250 = nb persons per desk
+
 				//compute day ok
 				var now = moment();
 				for (var i = 0 ; i < person.days.length ; i++) {
