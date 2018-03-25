@@ -36,10 +36,9 @@ entrance.controller('screen2', function($scope, $interval, $http, $location, Soc
 		//remove if id already exist
 		removePersonFromList(person.id);
 
-		//add person on top and remove last if > 25
+		//add person at bottom
 		PersonService.enhance(person);
-		var length = $scope.list.unshift(person);
-		if (length > 25) $scope.list.pop();
+		$scope.list.push(person);
 	});
 
 	SocketIO.on('remove', function(person) {

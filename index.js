@@ -187,8 +187,8 @@ io.sockets.on('connection', function (socket) {
 						"must_not": {"exists": { "field": "badge"}}
 					}
 				},
-				sort: [ { checkin: { order: 'desc' } } ],
-				size: 25
+				sort: [ { checkin: { order: 'asc' } } ],
+				size: 1000
 			}
 		}).then(function(resp) {
 			socket.emit('init', resp.hits.hits.map(function(r) { return r._source; }));
