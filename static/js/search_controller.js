@@ -16,6 +16,8 @@ entrance.controller('search', function($scope, $timeout, $http, PersonService) {
 			return;
 		}
 
+		if ($scope.toSecondScreen) $scope.toSecondScreen = false;
+
 		$scope.searchTime();
 	};
 
