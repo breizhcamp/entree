@@ -4,10 +4,11 @@ entrance.run(function (amMoment) {
 	amMoment.changeLocale('fr');
 });
 
-entrance.controller('screen2', function($scope, $interval, $http, SocketIO, PersonService) {
+entrance.controller('screen2', function($scope, $interval, $http, $location, SocketIO, PersonService) {
 
 	$scope.desks = createDesks(['A', 'B', 'C', 'D']);
 	$scope.list = [];
+	$scope.showDeskConfig = false; //display desks button to configure display
 
 	$scope.$watch('desks', function(desks) {
 		var activeDesks = [];
@@ -17,6 +18,7 @@ entrance.controller('screen2', function($scope, $interval, $http, SocketIO, Pers
 		}
 		$scope.activeDesks = activeDesks;
 		$scope.colWidth = Math.floor(100 / activeDesks.length);
+		$location.search({ desks: activeDesks.join("") });
 	}, true);
 
 	$interval(enhancePersonList, 10000);
@@ -57,9 +59,11 @@ entrance.controller('screen2', function($scope, $interval, $http, SocketIO, Pers
 
 	function createDesks(desksName) {
 		var desks = [];
+		var actives = $location.search().desks;
+
 		for (var i = 0; i < desksName.length; i++) {
 			var name = desksName[i];
-			desks.push({ name: name, active: true });
+			desks.push({ name: name, active: !actives || actives.indexOf(name) >= 0 });
 		}
 		return desks;
 	}

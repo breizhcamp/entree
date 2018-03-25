@@ -1,9 +1,5 @@
-.container-fluid {
-	margin-left: 55px;
-}
-
 div.desk-buttons {
-	float: left;
+	position: absolute;
 	padding-top: 10px;
 	padding-left: 10px;
 	width: 55px;

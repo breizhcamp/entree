@@ -27,9 +27,15 @@
 <body ng-controller="screen2">
 
 <div class="desk-buttons">
-	<div ng-repeat="d in desks">
-		<button class="btn" ng-class="{active: d.active, 'btn-default': !d.active, 'btn-primary': d.active}" ng-click="d.active = !d.active">{{d.name}}</button></div>
+	<div>
+		<button class="btn btn-default btn-sm" ng-click="showDeskConfig = !showDeskConfig"><span class="glyphicon glyphicon-cog"></span></button>
+	</div>
+
+	<div ng-repeat="d in desks" ng-show="showDeskConfig">
+		<button class="btn" ng-class="{active: d.active, 'btn-default': !d.active, 'btn-primary': d.active}" ng-click="d.active = !d.active">{{d.name}}</button>
+	</div>
 </div>
+
 
 <div class="container-fluid">
 	<div class="row">

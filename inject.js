@@ -7,7 +7,6 @@ var csv = require("fast-csv"),
 	elasticsearch = require('elasticsearch');
 
 var bulk = [];
-var cur_id = 1;
 
 var client = new elasticsearch.Client({
 	host: 'localhost:9200'
@@ -53,7 +52,8 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 					nom: { type: 'text', analyzer: 'french' },
 					prenom: { type: 'text', analyzer: 'french' },
 					societe: { type: 'text', analyzer: 'french' },
-					desk: { type: 'keyword' }
+					desk: { type: 'keyword' },
+					checkin: { type: 'date' }
 				}
 			}
 		}
@@ -66,31 +66,31 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 
 function injectCSV() {
 
-	csv.fromPath("inscrits.csv", { headers: true, delimiter: ';', trim: true })
+	csv.fromPath("inscrits.csv", { headers: true, delimiter: ',', trim: true })
 		.transform(function(data) {
 
 			if (data['Catégorie'] === "Journée" || data['Payé'] === "0") {
 				return; //not parsing ticket for days in pass
 			}
 
+			var cur_id = data['id'];
 			var desk = String.fromCharCode(65 + (cur_id % DESK_NUMBER)); //65 = A
-			cur_id++;
 
 			var participant = {
 				id: cur_id,
 				barcode: data['Codes-barres'],
-				nom: data['Nom'],
-				prenom: data['Prénom'],
-				mail: data['E-mail'],
-				type: data['Tarif'],
+				nom: data['lastname'],
+				prenom: data['firstname'],
+				mail: data['email'],
+				type: data['ticketType'],
 				desk: desk
 				//mailmd5
 				//societe if filled
 				//days
 			};
 			//participant.mailmd5 = crypto.createHash('md5').update(participant.mail).digest("hex");
-			if (data['Entreprise #11']) {
-				participant.societe = data['Entreprise #11'];
+			if (data['company']) {
+				participant.societe = data['company'];
 			}
 
 			//injecting days the participant has access
