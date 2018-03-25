@@ -3,6 +3,7 @@ div.desk-buttons {
 	padding-top: 10px;
 	padding-left: 10px;
 	width: 55px;
+	z-index: 1000;
 }
 
 .desk-buttons div {
@@ -34,11 +35,13 @@ div.age-old {
 .persons {
 	padding: 5px;
 	overflow: hidden;
+	position: relative;
 	transition: background-color 1000ms linear;
 }
 
 .persons h1 {
 	margin-bottom: 0;
+	margin-top: 0;
 }
 .persons h2 {
 	margin: 0;
@@ -51,13 +54,25 @@ div.age-old {
 	margin: 0;
 }
 
+.ticket-type {
+	float: right;
+	text-align: right;
+}
+
+.ticket-type .text-primary {
+	font-size: 3rem;
+	line-height: 1;
+}
+
 .dateKO {
 	color: #FF0000;
 	font-weight: bold;
 }
 
 .checkin-time {
-	float: right;
+	position: absolute;
+	right: 5px;
+	bottom: 0;
 	font-style: italic;
 	color: #888888;
 }
