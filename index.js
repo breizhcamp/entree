@@ -39,24 +39,18 @@ server.post('/s', function (req, res, next) {
 						}
 					},
 					{
-						"match_phrase_prefix": {
-							"prenom": {
-								"query": search
-							}
+						"prefix": {
+							"prenom": search
 						}
 					},
 					{
-						"match_phrase_prefix": {
-							"nom": {
-								"query": search
-							}
+						"prefix": {
+							"nom": search
 						}
 					},
 					{
-						"match_phrase_prefix": {
-							"societe": {
-								"query": search
-							}
+						"prefix": {
+							"societe": search
 						}
 					}
 
