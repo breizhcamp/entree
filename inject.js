@@ -69,7 +69,7 @@ function injectCSV() {
 	csv.fromPath("inscrits.csv", { headers: true, delimiter: ',', trim: true })
 		.transform(function(data) {
 
-			if (data['Catégorie'] === "Journée" || data['Payé'] === "0") {
+			if (data['Catégorie'] === "Journée" || data['Payé'] === "0" || data["noBadge"] === "1") {
 				return; //not parsing ticket for days in pass
 			}
 
@@ -93,31 +93,30 @@ function injectCSV() {
 			var days;
 			switch (participant.type) {
 				case 'Exposant':
-				case 'Bénévole':
+				case 'Staff':
 				case 'Combo Sponsors (3 jours)':
 				case 'Combo (3 jours)':
 				case 'Speaker':
-				case 'Organisation':
-					days = ['2018-03-28', '2018-03-29', '2018-03-30'];
+					days = ['2019-03-20', '2019-03-21', '2019-03-22'];
 					break;
 				case 'Conférences (jeudi et vendredi)':
-				case 'Conférences Sponsors (jeudi et vendredi)':
-					days = ['2018-03-29', '2018-03-30'];
+					days = ['2019-03-21', '2019-03-22'];
 					break;
 
-				case 'Mercredi uniquement':
-					days = ['2018-03-28'];
+				case 'Mercredi':
+					days = ['2019-03-20'];
 					break;
-				case 'Jeudi uniquement':
-					days = ['2018-03-29'];
+				case 'Jeudi':
+					days = ['2019-03-21'];
 					break;
-				case 'Vendredi uniquement':
-					days = ['2018-03-29'];
+				case 'Vendredi':
+					days = ['2019-03-22'];
 					break;
 
 			}
 			if (!days) {
-				console.log("Cannot retrieve days for " + participant.nom + " " + participant.prenom + " (" + participant.barcode + ")");
+				console.log("Cannot retrieve days for " + participant.nom + " " + participant.prenom
+					+ " (" + participant.barcode + ") : " + participant.type);
 			}
 			participant.days = days;
 
@@ -126,14 +125,7 @@ function injectCSV() {
 			switch (participant.type) {
 				case 'Combo Sponsors (3 jours)': type = 'Combo Sponsors'; break;
 				case 'Combo (3 jours)': type = 'Combo'; break;
-				case 'Université (mercredi)': type = 'Université'; break;
 				case 'Conférences (jeudi et vendredi)': type = 'Conférences'; break;
-				case 'Conférences Sponsors (jeudi et vendredi)': type = 'Confs Sponsors'; break;
-				case 'Mercredi uniquement': type = 'Mercredi'; break;
-				case 'Jeudi uniquement': type = 'Jeudi'; break;
-				case 'Vendredi uniquement': type = 'Vendredi'; break;
-
-				case 'Organisation': type = 'Orga'; break;
 			}
 			participant.type = type;
 
