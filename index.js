@@ -15,6 +15,16 @@ var io = socketio.listen(server.server);
 server.use(restify.plugins.bodyParser());
 
 /**
+ * DESK LETTER COMPUTATION FROM ID
+ */
+function computeDeskFromId(id) {
+	var i = id < 750 ? id : 749; //force to 3 desk max
+
+	//65 = A - 250 = nb persons per desk
+	return String.fromCharCode(65 + Math.floor(i / 250));
+}
+
+/**
  * SEARCH QUERY
  */
 server.post('/s', function (req, res, next) {
@@ -80,7 +90,7 @@ server.post('/s', function (req, res, next) {
 			query: query
 		}
 	}).then(function(resp) {
-		var persons = resp.hits.hits.map(function(r) { return r._source; });
+		var persons = getPersonsFromES(resp);
 		res.send(persons);
 		next();
 
@@ -93,6 +103,15 @@ server.post('/s', function (req, res, next) {
 		next(new restify.InternalServerError(err.message));
 	});
 });
+
+function getPersonsFromES(resp) {
+	return resp.hits.hits.map(function (r) {
+		var p = r._source;
+		p.desk = computeDeskFromId(p.id);
+
+		return p;
+	});
+}
 
 /**
  * USER CHECK-IN
@@ -160,6 +179,7 @@ function stamp(person, attr, event) {
 	}).then(function() {
 		//dispatch event to every 2nd screen connected
 		var e = event ? event : attr;
+		person.desk = computeDeskFromId(person.id);
 		io.sockets.emit(e, person);
 	});
 }
@@ -185,7 +205,7 @@ io.sockets.on('connection', function (socket) {
 				size: 1000
 			}
 		}).then(function(resp) {
-			socket.emit('init', resp.hits.hits.map(function(r) { return r._source; }));
+			socket.emit('init', getPersonsFromES(resp));
 		}, function(err) {
 			console.log("Error when retrieving last checkin", err);
 		});
