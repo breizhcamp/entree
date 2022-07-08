@@ -23,6 +23,9 @@ entrance.controller('search', function($scope, $timeout, $http, PersonService) {
 
 	$scope.keydown = function(event) {
 		switch (event.keyCode) {
+			case 9:
+				//disable change field when tab
+				event.preventDefault();
 			case 13: //enter
 				if (!$scope.toSecondScreen) {
 					//normal search

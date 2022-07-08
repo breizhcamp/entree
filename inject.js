@@ -12,20 +12,34 @@ var client = new elasticsearch.Client({
 	host: 'localhost:9200'
 });
 
+var indexName = 'participants';
+
 //check index exists
-client.indices.exists({	index: 'participants' }).then(function(data) {
+client.indices.exists({	index: indexName }).then(function(data) {
 	if (data) {
-		return client.indices.delete({ index: 'participants' });
+		return client.indices.delete({ index: indexName });
 	}
 
 }).then(function() {
 	return client.indices.create({
-		index: 'participants',
+		index: indexName,
 		body: {
 			settings: {
-				number_of_shards: 3,
-				number_of_replicas : 1
-			}
+				number_of_shards: 1,
+				number_of_replicas : 0
+			},
+//             analysis: {
+//                 analyzer: {
+//                     breizhcamp: { 
+//                         type: "custom",
+//                         tokenizer: "standard",
+//                         filter: [
+//                             "lowercase",
+//                             "asciifolding"
+//                         ]
+//                     }
+//                 }
+//             }
 		}
 	});
 
@@ -34,7 +48,7 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 
 	//check type existance
 	return client.indices.existsType({
-		index: 'participants',
+		index: indexName,
 		type: 'participant'
 	});
 
@@ -43,15 +57,15 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 
 	//create type mapping
 	return client.indices.putMapping({
-		index: 'participants',
+		index: indexName,
 		type: 'participant',
 		body: {
 			participant: {
 				properties: {
 					id: {type: 'keyword'},
-					nom: { type: 'text', analyzer: 'french' },
-					prenom: { type: 'text', analyzer: 'french' },
-					societe: { type: 'text', analyzer: 'french' },
+					nom: { type: 'text'/*, analyzer: 'breizhcamp'*/ },
+					prenom: { type: 'text'/*, analyzer: 'breizhcamp'*/ },
+					societe: { type: 'text'/*, analyzer: 'breizhcamp'*/ },
 					desk: { type: 'keyword' },
 					checkin: { type: 'date' }
 				}
@@ -66,7 +80,7 @@ client.indices.exists({	index: 'participants' }).then(function(data) {
 
 function injectCSV() {
 
-	csv.fromPath("inscrits.csv", { headers: true, delimiter: ',', trim: true })
+	csv.fromPath("inscrits-2022.csv", { headers: true, delimiter: ',', trim: true })
 		.transform(function(data) {
 
 			if (data['Catégorie'] === "Journée" || data['Payé'] === "0" || data["noBadge"] === "1") {
@@ -94,24 +108,15 @@ function injectCSV() {
 			switch (participant.type) {
 				case 'Exposant':
 				case 'Staff':
-				case 'Combo Sponsors (3 jours)':
-				case 'Combo (3 jours)':
-				case 'Speaker':
-					days = ['2019-03-20', '2019-03-21', '2019-03-22'];
+				case 'Pass 3 jours (Sponsors)':
+				case 'Pass 3 jours':
+				case 'Orateur':
+					days = ['2022-06-29', '2022-06-30', '2022-07-01'];
 					break;
-				case 'Conférences (jeudi et vendredi)':
-					days = ['2019-03-21', '2019-03-22'];
+				case 'Pass 2 jours':
+					days = ['2022-06-29', '2022-06-30'];
 					break;
 
-				case 'Mercredi':
-					days = ['2019-03-20'];
-					break;
-				case 'Jeudi':
-					days = ['2019-03-21'];
-					break;
-				case 'Vendredi':
-					days = ['2019-03-22'];
-					break;
 
 			}
 			if (!days) {
@@ -123,9 +128,9 @@ function injectCSV() {
 			//shorten tickets type label
 			var type = participant.type;
 			switch (participant.type) {
-				case 'Combo Sponsors (3 jours)': type = 'Combo Sponsors'; break;
-				case 'Combo (3 jours)': type = 'Combo'; break;
-				case 'Conférences (jeudi et vendredi)': type = 'Conférences'; break;
+				case 'Pass 3 jours (Sponsors)': type = '3 jours Sponsors'; break;
+				case 'Pass 3 jours': type = '3 jours'; break;
+				case 'Pass 2 jours': type = '2 jours'; break;
 			}
 			participant.type = type;
 
@@ -136,7 +141,7 @@ function injectCSV() {
 		.on("data", function(data) {
 			if (!data) return;
 
-			bulk.push({ index: { _index: 'participants', _type: 'participant', _id: data.id }});
+			bulk.push({ index: { _index: indexName, _type: 'participant', _id: data.id }});
 			bulk.push(data);
 
 			if (bulk.length > 120) {
@@ -151,9 +156,9 @@ function injectCSV() {
 		})
 		.on("end", function() {
 			indexBulk(function() {
-				client.indices.refresh({ index: 'participants' }).then(function() {
+				client.indices.refresh({ index: indexName }).then(function() {
 					//count nb participants after refresh
-					return client.count({ index: 'participants' });
+					return client.count({ index: indexName });
 
 				}).then(function(data) {
 					console.log("Injection OVER, Nb participants: " + data.count);

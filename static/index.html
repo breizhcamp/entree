@@ -137,6 +137,7 @@
 					<th>Prénom</th>
 					<th>Société</th>
 					<th>Billet</th>
+					<th>Récupéré</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -146,6 +147,7 @@
 					<td>{{person.prenom}}</td>
 					<td>{{person.societe}}</td>
 					<td>{{person.type}}</td>
+					<td>{{person.checkin | date:'dd/MM HH:mm'}}</td>
 				</tr>
 				</tbody>
 			</table>

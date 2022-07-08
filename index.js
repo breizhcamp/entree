@@ -7,7 +7,7 @@ var restify = require('restify'),
 	elasticsearch = require('elasticsearch');
 
 var client = new elasticsearch.Client({
-	host: 'localhost:9200'
+	host: 'localhost:9201'
 });
 
 var server = restify.createServer();
@@ -20,8 +20,8 @@ server.use(restify.plugins.bodyParser());
 function computeDeskFromId(id) {
 	var i = id < 750 ? id : 749; //force to 3 desk max
 
-	//65 = A - 250 = nb persons per desk
-	return String.fromCharCode(65 + Math.floor(i / 250));
+	//65 = A - 300 = nb persons per desk
+	return String.fromCharCode(65 + Math.floor(i / 300));
 }
 
 /**
